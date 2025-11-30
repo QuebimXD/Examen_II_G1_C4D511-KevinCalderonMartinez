@@ -88,7 +88,7 @@ resumen <- data.frame(
     mean(datos$EDAD, na.rm = TRUE)
   )
 )
-knitr::kable(resumen, caption = "Resumen de 5 numeros y promedio")
+knitr::kable(resumen, caption = "Resumen de 5 numeros y promedio.")
 ```
 
 ## Ejercicio 3
@@ -106,8 +106,8 @@ datos <- datos %>%
   )
 zscore <- datos %>% 
   select(Z_SALARIO, OUTLIER_SALARIO, Z_EDAD, OUTLIER_EDAD) %>% 
-  head(5)
-knitr::kable(zscore, caption = "Aplicacion del Z-score")
+  head(10)
+knitr::kable(zscore, caption = "Aplicacion del Z-score.")
 ```
 
 ## Ejercicio 4
@@ -121,5 +121,38 @@ na <- data.frame(
   PORCENTAJE = round(porcentaje_na, 2)
 )
 knitr::kable(na, caption = "Porcentaje de valores nulos en cada columna.")
+```
+
+## Ejercicio 5
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+datos <- datos %>%
+  mutate(
+    SALARIO_IMPUT = ifelse(
+      is.na(SALARIO) | SALARIO == "",
+      mean(as.numeric(SALARIO), na.rm = TRUE),
+      SALARIO
+    ),
+    
+    EDAD_IMPUT = ifelse(
+      is.na(EDAD) | EDAD == "",
+      round(mean(as.numeric(EDAD), na.rm = TRUE)),
+      EDAD
+    ),
+    
+    TIPO_ASEGURAMIENTO_IMPUT = ifelse(
+      is.na(TIPO_ASEGURAMIENTO) | TIPO_ASEGURAMIENTO == "",
+      "DESCONOCIDO",
+      TIPO_ASEGURAMIENTO
+    )
+  )
+
+imputs <- datos %>% 
+  select (SALARIO_IMPUT, EDAD_IMPUT, TIPO_ASEGURAMIENTO_IMPUT) %>% 
+  head(10)
+
+knitr::kable(imputs, caption = "Datos imputados por las columnas vacias.")
+
 ```
 
