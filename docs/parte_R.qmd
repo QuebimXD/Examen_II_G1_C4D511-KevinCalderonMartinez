@@ -60,7 +60,7 @@ datos <- read.table(here("data", "moras.txt"), header = TRUE, sep = ",", dec = "
 ```
 
 
-## Pregunta 2
+## Ejercicio 2
 
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
@@ -88,8 +88,7 @@ resumen <- data.frame(
     mean(datos$EDAD, na.rm = TRUE)
   )
 )
-
-resumen
+knitr::kable(resumen, caption = "Resumen de 5 numeros y promedio")
 ```
 
 ## Ejercicio 3
@@ -105,8 +104,22 @@ datos <- datos %>%
     Z_EDAD = (EDAD - mean(EDAD, na.rm = TRUE)) / sd(EDAD, na.rm = TRUE),
     OUTLIER_EDAD = ifelse(abs(Z_EDAD) > 1.96, "OUTLIER", "NO")
   )
-datos %>% 
+zscore <- datos %>% 
   select(Z_SALARIO, OUTLIER_SALARIO, Z_EDAD, OUTLIER_EDAD) %>% 
   head(5)
+knitr::kable(zscore, caption = "Aplicacion del Z-score")
+```
+
+## Ejercicio 4
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+porcentaje_na <- sapply(datos, function(x) {
+  sum(is.na(x)) / length(x) * 100
+})
+na <- data.frame(
+  COLUMNA = names(porcentaje_na),
+  PORCENTAJE = round(porcentaje_na, 2)
+)
+knitr::kable(na, caption = "Porcentaje de valores nulos en cada columna.")
 ```
 
