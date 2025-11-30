@@ -1,5 +1,5 @@
 ---
-title: "Parte de excel"
+title: "Parte de R"
 author: "Kevin David Calderon Martinez"
 format: pdf
 fontsize: 12pt
@@ -356,3 +356,80 @@ guardar_grafico_morosos(datos, "INDICADOR.EXTRANJERO", here("res", "morosos_extr
 
 Como puede observar, en los graficos se muestran las distribuciones de cada categoría de acuerdo al porcentaje de morosidad. Los datos a destacar es el porcentaje de morosos de trabajadores independientes, extranjeros, seguros inactivos; son porcentajes altos. Se puede entender en que mas de la mitad de seguros impagados sean inactivos, pero se debe verificar las obligaciones de los clientes morosos extranjeros y los morosos masculinos. Los demás porcentajes no superan el 20%, lo cual es una cifra alentadora.
 
+## Ejercicio 8
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+datos <- datos %>%
+  mutate(
+    RANGO_EDAD = cut(
+      EDAD,
+      breaks = c(0, 25, 35, 45, 55, 65, Inf),
+      labels = c("14-25", "26-35", "36-45", "46-55", "56-65", ">66"),
+      right = TRUE
+    )
+  )
+freq_edad <- datos %>%
+  group_by(RANGO_EDAD, INDICADOR_MOROSO) %>%
+  summarise(CONTEO = n(), .groups = "drop")
+colores <- c("SI" = "red", "NO" = "darkseagreen3")
+
+p_edad <- ggplot(freq_edad, aes(x = RANGO_EDAD, y = CONTEO, fill = INDICADOR_MOROSO)) +
+  geom_col(position = "dodge") +
+  geom_text(
+    aes(label = CONTEO),
+    position = position_dodge(width = 0.9),
+    vjust = -0.3,
+    size = 4
+  ) +
+  scale_fill_manual(values = colores) +
+  labs(
+    x = "Rango de edad",
+    y = "Cantidad",
+    fill = "Moroso",
+    title = "Cantidad de morosos y no morosos por rango de edad"
+  ) +
+  theme_minimal(base_size = 13)
+
+ggsave(here("res", "morosos_por_edad.pdf"), p_edad, width = 9, height = 6)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+datos <- datos %>%
+  mutate(
+    RANGO_SALARIO = cut(
+      SALARIO,
+      breaks = c(0, 200000, 400000, 600000, 800000, 1000000, Inf),
+      labels = c("0-200000", "200000-400000", "400000-600000", 
+                 "600000-800000", "800000-1000000", ">1000000"),
+      right = TRUE
+    )
+  )
+freq_salario <- datos %>%
+  group_by(RANGO_SALARIO, INDICADOR_MOROSO) %>%
+  summarise(CONTEO = n(), .groups = "drop")
+p_salario <- ggplot(freq_salario, aes(x = RANGO_SALARIO, y = CONTEO, fill = INDICADOR_MOROSO)) +
+  geom_col(position = "dodge") +
+  geom_text(
+    aes(label = CONTEO),
+    position = position_dodge(width = 0.9),
+    vjust = -0.3,
+    size = 4
+  ) +
+  scale_fill_manual(values = colores) +
+  labs(
+    x = "Rango salarial",
+    y = "Cantidad",
+    fill = "Moroso",
+    title = "Cantidad de morosos y no morosos por rango salarial"
+  ) +
+  theme_minimal(base_size = 13)
+ggsave(here("res", "morosos_por_salario.pdf"), p_salario, width = 9, height = 6)
+```
+
+![Grafico de cantidad de morosos de acuerdo al salario](../res/morosos_por_salario.pdf)
+
+Los resultados muestran que la morosidad se concentra principalmente en los niveles salariales intermedios, especialmente entre c200 000 y c600 000, donde se registran los valores más altos de personas morosas. Esto sugiere que quienes reciben ingresos medios pueden enfrentarse a mayores compromisos financieros o a una relación ingreso–gasto más ajustada, lo que incrementa su probabilidad de caer en mora.
+
+![Grafico de cantidad de morosos de acuerdo a la edad](../res/morosos_por_edad.pdf)
+
+Los resultados muestran que la morosidad es más frecuente en las edades intermedias, especialmente entre los 36 y 55 años. Esto puede deberse a que en esa etapa las personas suelen asumir más compromisos económicos, como préstamos o gastos familiares, lo que aumenta la probabilidad de atrasarse. En cambio, los más jóvenes y los adultos mayores presentan menos casos de morosidad, posiblemente porque tienen menos obligaciones financieras o ingresos más estables.
