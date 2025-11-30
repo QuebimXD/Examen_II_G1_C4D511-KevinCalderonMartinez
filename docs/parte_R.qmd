@@ -1,5 +1,95 @@
 ---
-title: "parte_R"
-format: html
+title: "Parte de excel"
+author: "Kevin David Calderon Martinez"
+format: pdf
+fontsize: 12pt
+mainfont: "Times New Roman"
+geometry: "margin = 2.54cm"
+colorlinks: true
+urlcolor: blue
+linestretch: 1.5
+include-in-header:
+  text: |
+      \usepackage{indentfirst}
+      \usepackage{hanging}
+      \usepackage{caption}
+      \usepackage{titling}
+       
+      \setlength{\parindent}{1.27cm}
+      \setlength{\parskip}{0pt}
+      \captionsetup[table]{name=Tabla}
+      \captionsetup[table]{font=small}
+      \captionsetup[figure]{name=Figura}
+      \captionsetup[figure]{font=small}
+      
+      \addtokomafont{section}{\rmfamily}
+      \addtokomafont{subsection}{\rmfamily}
+      \addtokomafont{subsubsection}{\rmfamily}
+      
+      \RedeclareSectionCommand[
+        beforeskip=1pt,
+        afterskip=1pt
+      ]{section}
+
+      \RedeclareSectionCommand[
+        beforeskip=4pt,
+        afterskip=4pt
+      ]{subsection}
+
+      \RedeclareSectionCommand[
+        beforeskip=3pt,
+        afterskip=3pt
+      ]{subsubsection}
+      
+      \pretitle{\begin{center}\fontsize{18pt}{20pt}\selectfont\bfseries}
+      \posttitle{\par\end{center}}
+      
+      \preauthor{\begin{center}\fontsize{12pt}{14pt}\selectfont}
+      \postauthor{\par\end{center}}
+      \predate{\begin{center}\fontsize{12pt}{14pt}\selectfont}
+      \postdate{\par\end{center}}      
 ---
+
+Primero, leemos la base de datos.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(here)
+library(readr)
+
+datos <- read.table(here("data", "moras.txt"), header = TRUE, sep = ",", dec = ".", stringsAsFactors = FALSE )
+
+```
+
+
+## Pregunta 2
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+datos$SALARIO <- gsub("\"", "", datos$SALARIO)      
+datos$SALARIO <- gsub(",", ".", datos$SALARIO) 
+datos$SALARIO <- as.numeric(datos$SALARIO) 
+
+resumen <- data.frame(
+  MEDIDOR = c("MINIMO", "MAXIMO", "CUARTIL_1", "MEDIANA", "CUARTIL_3", "PROMEDIO"),
+  SALARIO = c(
+    min(datos$SALARIO, na.rm = TRUE),
+    max(datos$SALARIO, na.rm = TRUE),
+    quantile(datos$SALARIO, 0.25, na.rm = TRUE),
+    median(datos$SALARIO, na.rm = TRUE),
+    quantile(datos$SALARIO, 0.75, na.rm = TRUE),
+    mean(datos$SALARIO, na.rm = TRUE)
+  ),
+  EDAD = c(
+    min(datos$EDAD, na.rm = TRUE),
+    max(datos$EDAD, na.rm = TRUE),
+    quantile(datos$EDAD, 0.25, na.rm = TRUE),
+    median(datos$EDAD, na.rm = TRUE),
+    quantile(datos$EDAD, 0.75, na.rm = TRUE),
+    mean(datos$EDAD, na.rm = TRUE)
+  )
+)
+
+resumen
+```
 
