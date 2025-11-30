@@ -156,3 +156,139 @@ knitr::kable(imputs, caption = "Datos imputados por las columnas vacias.")
 
 ```
 
+## Ejercicio 6
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+conteo_categoria <- function(df, variable) {
+  df %>%
+    group_by(across({{variable}})) %>%
+    summarise(CONTEO = n(), .groups = "drop")
+}
+conteo_sexo <- conteo_categoria(datos, SEXO)
+conteo_tipo <- conteo_categoria(datos, TIPO_ASEGURAMIENTO)
+conteo_sector <- conteo_categoria(datos, SECTOR)
+conteo_activo <- conteo_categoria(datos, INDICADOR_ACTIVO)
+conteo_extranjero <- conteo_categoria(datos, INDICADOR.EXTRANJERO)
+conteo_moroso <- conteo_categoria(datos, INDICADOR_MOROSO)
+
+library(ggplot2)
+
+library(ggplot2)
+library(dplyr)
+
+guardar_grafico_categoria <- function(df, variable, titulo, archivo, horizontal = FALSE) {
+  p <- ggplot(df, aes(x = .data[[variable]], 
+                      y = CONTEO, 
+                      fill = .data[[variable]])) +
+    geom_col() +
+    geom_text(aes(label = CONTEO),
+              vjust = ifelse(horizontal, 0.5, -0.3),
+              hjust = ifelse(horizontal, -0.2, 0.5),
+              angle = ifelse(horizontal, 270, 0),
+              size = 4) +
+    labs(title = titulo, x = "", y = "Frecuencia") +
+    theme_minimal(base_size = 13) +
+    theme(legend.position = "none")
+  if (horizontal) {
+    p <- p + coord_flip()
+    ggsave(filename = archivo, plot = p, width = 8, height = 10, dpi = 300)
+  }else{
+    ggsave(filename = archivo, plot = p, width = 5, height = 7, dpi = 300)
+  }
+  
+}
+
+```
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+guardar_grafico_categoria(
+  df = conteo_tipo,
+  variable = "TIPO_ASEGURAMIENTO",
+  titulo = "Frecuencia por Tipo de Aseguramiento",
+  archivo = here("res","tipo_aseguramiento.pdf" ),
+  horizontal = TRUE
+)
+
+
+```
+
+![Grafico de la distribucion de asegurados de acuerdo al tipo](../res/tipo_aseguramiento.pdf)
+
+Como se puede observar, casi el 80% de los asegurados son asalariados. Por lo que la mayoria se encuentra en situacion de empleado. El de menor frecuencia tiene que ver con el convenio de los asegurados voluntarios. Tambien se aprecia que hay mas trabajadores independientes asegurados, que los asegurados voluntarios.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+guardar_grafico_categoria(
+  df = conteo_sexo,
+  variable = "SEXO",
+  titulo = "Frecuencia por Sexo",
+  archivo = here("res","sexo.pdf" ),
+  horizontal = FALSE
+)
+
+
+```
+
+![Grafico de la distribucion de asegurados de acuerdo al sexo](../res/sexo.pdf)
+
+Note que poco mas del 60% de los asegurados son hombres, lo cual contrasta en una diferencia de mas de un 20% con las mujeres aseguradas.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+guardar_grafico_categoria(
+  df = conteo_sector,
+  variable = "SECTOR",
+  titulo = "Frecuencia por sector",
+  archivo = here("res","sector.pdf" ),
+  horizontal = FALSE
+)
+
+```
+
+![Grafico de la distribucion de asegurados de acuerdo al sector del asegurado](../res/sector.pdf)
+
+Poco mas de un 20% de empleados son del sector publico, por lo que hay una gran brecha entre la cantidad de empleados del sector publico y privado.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+guardar_grafico_categoria(
+  df = conteo_activo,
+  variable = "INDICADOR_ACTIVO",
+  titulo = "Frecuencia por seguro activo o inactivo",
+  archivo = here("res","activo.pdf" ),
+  horizontal = FALSE
+)
+
+```
+
+![Grafico de la distribucion de asegurados de acuerdo a si el seguro se encuentra activo o no](../res/activo.pdf)
+
+Aquí casi la totalidad de los asegurados poseen su paquete en estado Activo. Solo 34 personas no tienen su seguro activo. Esto es positivo, debido a que hay poco margen de asegurados sin forma de acceder a su seguro, pues se encuentra inactivo.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+guardar_grafico_categoria(
+  df = conteo_extranjero,
+  variable = "INDICADOR.EXTRANJERO",
+  titulo = "Frecuencia por extranjero",
+  archivo = here("res","extranjero.pdf" ),
+  horizontal = FALSE
+)
+
+```
+
+![Grafico de la distribucion de asegurados de acuerdo a si el usuario del seguro es extranjero o no](../res/extranjero.pdf)
+
+Hay una baja cantidad de asegurados extranjeros. Esto se puede explicar de muchas formas: El seguro esta mas enfocado a servicios de residentes, y no tan enfocados al turismo.  Por ende, hay una gran diferencia entre los asegurados que son y no son extranjeros.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+guardar_grafico_categoria(
+  df = conteo_moroso,
+  variable = "INDICADOR_MOROSO",
+  titulo = "Frecuencia por morosidad",
+  archivo = here("res","moroso.pdf" ),
+  horizontal = FALSE
+)
+
+```
+
+![Grafico de la distribucion de asegurados de acuerdo a si el usuario del seguro es moroso o no](../res/moroso.pdf)
+
+Mas del 80% de los asegurados han realizado los pagos de sus obligaciones de manera responsable. Hay 870 de asegurados que han impagado sus seguros. Si bien esta cifra es considerable, no comprende mas del 20% del total de asegurados, lo cual es un dato alentador para el factor incertidumbre de la aseguradora.
