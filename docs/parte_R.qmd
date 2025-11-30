@@ -3,7 +3,7 @@ title: "Parte de excel"
 author: "Kevin David Calderon Martinez"
 format: pdf
 fontsize: 12pt
-mainfont: "Times New Roman"
+mainfont: "Arial"
 geometry: "margin = 2.54cm"
 colorlinks: true
 urlcolor: blue
@@ -54,7 +54,6 @@ Primero, leemos la base de datos.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 library(here)
-library(readr)
 
 datos <- read.table(here("data", "moras.txt"), header = TRUE, sep = ",", dec = ".", stringsAsFactors = FALSE )
 
@@ -91,5 +90,23 @@ resumen <- data.frame(
 )
 
 resumen
+```
+
+## Ejercicio 3
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(dplyr)
+
+datos <- datos %>%
+  mutate(
+    Z_SALARIO = (SALARIO - mean(SALARIO, na.rm = TRUE)) / sd(SALARIO, na.rm = TRUE),
+    OUTLIER_SALARIO = ifelse(abs(Z_SALARIO) > 1.96, "OUTLIER", "NO"),
+
+    Z_EDAD = (EDAD - mean(EDAD, na.rm = TRUE)) / sd(EDAD, na.rm = TRUE),
+    OUTLIER_EDAD = ifelse(abs(Z_EDAD) > 1.96, "OUTLIER", "NO")
+  )
+datos %>% 
+  select(Z_SALARIO, OUTLIER_SALARIO, Z_EDAD, OUTLIER_EDAD) %>% 
+  head(5)
 ```
 
