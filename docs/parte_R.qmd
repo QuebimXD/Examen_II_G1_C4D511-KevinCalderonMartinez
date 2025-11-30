@@ -1,6 +1,6 @@
 ---
 title: "Parte de R"
-author: "Kevin David Calderon Martinez"
+author: "Kevin David Calderon Martinez. Link del repositorio: https://github.com/QuebimXD/Examen_II_G1_C4D511-KevinCalderonMartinez.git"
 format: pdf
 fontsize: 12pt
 mainfont: "Arial"
@@ -54,7 +54,8 @@ Primero, leemos la base de datos.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 library(here)
-
+library(dplyr)
+library(tidyverse)
 datos <- read.table(here("data", "moras.txt"), header = TRUE, sep = ",", dec = ".", stringsAsFactors = FALSE )
 
 ```
@@ -433,3 +434,45 @@ Los resultados muestran que la morosidad se concentra principalmente en los nive
 ![Grafico de cantidad de morosos de acuerdo a la edad](../res/morosos_por_edad.pdf)
 
 Los resultados muestran que la morosidad es más frecuente en las edades intermedias, especialmente entre los 36 y 55 años. Esto puede deberse a que en esa etapa las personas suelen asumir más compromisos económicos, como préstamos o gastos familiares, lo que aumenta la probabilidad de atrasarse. En cambio, los más jóvenes y los adultos mayores presentan menos casos de morosidad, posiblemente porque tienen menos obligaciones financieras o ingresos más estables.
+
+## Ejercicio 10
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(rpart)
+library(rpart.plot)
+
+
+df_arbol <- datos %>%
+  mutate(
+    TIPO_ASEGURAMIENTO = recode(
+      TIPO_ASEGURAMIENTO,
+      "PENSIONADOS EN SU PROPIO SISTEMA" = "PENSIONADOS",
+      "ASEGURADO VOLUNTARIO" = "VOLUNTARIO",
+      "TRABAJADOR INDEPENDIENTE" = "INDEPENDIENTE",
+      "CONVENIOS ESPECIALES DE TRABAJADORES INDEPENDIENTES" = "CONV_INDEP",
+      "CONVENIOS ESPECIALES DE ASEGURADOS VOLUNTARIOS" = "CONV_VOL"
+    )
+  ) %>%
+  select(-IDENTIFICACION)
+
+arbol <- rpart(INDICADOR_MOROSO ~ ., data = datos, method = "class",
+               control = rpart.control(cp = 0.01)) 
+
+rpart.plot(
+  arbol,
+  type = 2,        # ramas más claras
+  extra = 104,     # muestra % y clases
+  under = TRUE,    # porcentaje debajo
+  fallen.leaves = TRUE,
+  box.palette = "GnBu",  # colores suaves
+  faclen = 8,            # acortar nombres larguísimos
+  tweak = 1.2,           # tamaño del texto
+  shadow.col = "gray",   # sombra
+  split.font = 2,        # fuente de los splits
+  branch.lwd = 2,        # grosor de ramas
+  branch = 1             # diseño curvo
+)
+```
+
+El arbol nos afirma que la variable con mayor influencia en la morosidad es el tipo de aseguramiento, pues las categorías tradicionales (asalariado, voluntarios y pensionados) no son tan morosos. Entre quienes no pertenecen a ese grupo, el indicador de extranjero se hace notar como el factor más determinante: las personas extranjeras presentan el mayor nivel de morosidad dentro de toda la base. Finalmente, para los no extranjeros, el salario introduce una división interesate, donde los ingresos mayores a ₡304 000 se asocian con un riesgo más alto de morosidad, posiblemente por mayores compromisos financieros. En conjunto, el modelo sugiere que la morosidad está vinculada principalmente al tipo de aseguramiento, la condición de extranjero y el nivel salarial. Concluya que las caracteristicas laborales y migratorias junto con el nivel salarial identifica perfiles con mayor chance de morosidad, brindando asi una perspectiva mas clara para la toma de desiciones.
+
